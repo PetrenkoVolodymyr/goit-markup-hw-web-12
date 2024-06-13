@@ -2,6 +2,20 @@ from datetime import date
 from typing import Optional
 from pydantic import BaseModel, Field, EmailStr, PastDate
 
+class UserSchema(BaseModel):
+    username: str = Field(min_length=3, max_length=50)
+    email: EmailStr
+    password: str = Field(min_length=6, max_length=8)
+
+
+class UserResponse(BaseModel):
+    id: int = 1
+    username: str
+    email: EmailStr
+
+    class Config:
+        from_attributes = True
+
 class NoteBase(BaseModel):
     name: str = Field(max_length=50)
     familyname: str = Field(max_length=50)
@@ -16,25 +30,11 @@ class NoteModel(NoteBase):
 
 class NoteResponse(NoteBase):
     id: int
+    user: UserResponse | None
 
     class Config:
         from_attributes = True
 
-
-
-class UserSchema(BaseModel):
-    username: str = Field(min_length=3, max_length=50)
-    email: EmailStr
-    password: str = Field(min_length=6, max_length=8)
-
-
-class UserResponse(BaseModel):
-    id: int = 1
-    username: str
-    email: EmailStr
-
-    class Config:
-        from_attributes = True
 
 
 class TokenSchema(BaseModel):
