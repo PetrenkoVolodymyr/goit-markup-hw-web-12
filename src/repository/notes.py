@@ -10,7 +10,7 @@ from src.schemas import NoteModel
 
 
 async def create_note(body: NoteModel, db: Session, user: User) -> Note:
-    note = Note(name=body.name, familyname=body.familyname, email=body.email, phone=body.phone, birthday=body.birthday, other = body.other, bd_soon = body.bd_soon)
+    note = Note(name=body.name, familyname=body.familyname, email=body.email, phone=body.phone, birthday=body.birthday, other = body.other, bd_soon = body.bd_soon, user = user)
     db.add(note)
     db.commit()
     db.refresh(note)
@@ -21,12 +21,12 @@ async def get_notes(skip: int, limit: int, db: Session, user: User) -> List[Note
 
 
 async def get_note(note_id: int, db: Session, user: User) -> Note:
-    return db.query(Note).filter(Note.id == note_id).filter(Note.user == user).first()
+    return db.query(Note).filter(Note.user == user).filter(Note.id == note_id).first()
 
 
 async def update_note(note_id: int, body: NoteModel, db: Session, user: User) -> Note | None:
     print('ss')
-    note = db.query(Note).filter(Note.id == note_id).first()
+    note = db.query(Note).filter(Note.user == user).filter(Note.id == note_id).first()
     print('ss')
     if note:
         print('rr')
@@ -42,31 +42,27 @@ async def update_note(note_id: int, body: NoteModel, db: Session, user: User) ->
 
 
 async def remove_note(note_id: int, db: Session, user: User) -> Note | None:
-    note = (
-        db.query(Note)
-        .filter(Note.id == note_id)
-        .first()
-    )
+    note = db.query(Note).filter(Note.user == user).filter(Note.id == note_id).first()
     if note:
         db.delete(note)
         db.commit()
     return note
 
 async def get_familyname(note_familyname: str, db: Session, user: User) -> Note:
-    return db.query(Note).filter(Note.familyname == note_familyname).first()
+    return db.query(Note).filter(Note.user == user).filter(Note.familyname == note_familyname).first()
 
 
 async def get_email(note_email: str, db: Session, user: User) -> Note:
-    return db.query(Note).filter(Note.email == note_email).first()
+    return db.query(Note).filter(Note.user == user).filter(Note.email == note_email).first()
 
 
 async def get_name(note_name: str, db: Session, user: User) -> Note:
-    return db.query(Note).filter(Note.name == note_name).first()
+    return db.query(Note).filter(Note.user == user).filter(Note.name == note_name).first()
 
 
 async def get_birthday(db: Session, user: User) -> List[Note]:
     print('ggx')
-    for note in db.query(Note).all():
+    for note in db.query(Note).filter(Note.user == user).all():
         today = datetime.date.today()
         today = dt(today.year, today.month, today.day)
         birthday = note.birthday.strftime(f"{datetime.date.today().year}-"+"%m-%d %H:%M:%S")
@@ -80,4 +76,4 @@ async def get_birthday(db: Session, user: User) -> List[Note]:
         else:
             note.bd_soon = False
             db.commit()
-    return db.query(Note).filter(Note.bd_soon == True).all()
+    return db.query(Note).filter(Note.user == user).filter(Note.bd_soon == True).all()

@@ -88,7 +88,7 @@ async def find_note_by_email(note_email: str, db: Session = Depends(get_db), use
     return note
 
 
-@router.get("/birthdays", response_model=List[NoteResponse])
+@router.get("/k/birthdays", response_model=List[NoteResponse])
 async def show_time(db: Session = Depends(get_db), user: User = Depends(auth_service.get_current_user)):
     print('ww')
     notes = await repository_notes.get_birthday(db, user)
